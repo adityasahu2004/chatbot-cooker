@@ -1,0 +1,87 @@
+<div class="wrapper">
+  <div *ngIf="!sidebarMinimized" class="sidebar" cdkDropList [cdkDropListData]="widgets" [cdkDropListConnectedTo]="['canvasList']" (cdkDropListDropped)="drop($event)" cdkDropListGroup>
+    <button class="minimize-btn" (click)="toggleSidebar()" title="Minimize Sidebar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <div class="widget" *ngFor="let widget of widgets" cdkDrag [cdkDragData]="widget">
+      {{ widget.label }}
+    </div>
+    <button (click)="saveLayout()" style="width:90%;margin:12px 5%;">Save Layout</button>
+    <button (click)="generateCode()" style="width:90%;margin:0 5% 12px 5%;">Generate Code</button>
+  </div>
+  <button *ngIf="sidebarMinimized" class="minimize-btn expanded" (click)="toggleSidebar()" title="Expand Sidebar">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 18l6-6-6-6"/>
+    </svg>
+  </button>
+  <div class="canvas" cdkDropList id="canvasList" [cdkDropListData]="canvas" [cdkDropListConnectedTo]="['sidebar']" (cdkDropListDropped)="drop($event)">
+    <div class="widget" *ngFor="let widget of canvas; let i = index" 
+         [style.transform]="'translate(' + widget.x + 'px, ' + widget.y + 'px)'"
+         (mousedown)="startDrag($event, i)"
+         (contextmenu)="onRightClick($event, widget)">
+      <ng-container [ngSwitch]="widget.type">
+        <input *ngSwitchCase="'textbox'" type="text" placeholder="Textbox">
+        <input *ngSwitchCase="'checkbox'" type="checkbox">
+        <input *ngSwitchCase="'radio'" type="radio">
+        <button *ngSwitchCase="'button'" class="btn">Button</button>
+        <select *ngSwitchCase="'dropdown'">
+          <option *ngFor="let option of widget.options" [value]="option.value">{{option.label}}</option>
+        </select>
+        <textarea *ngSwitchCase="'textarea'" placeholder="Textarea"></textarea>
+        <span *ngSwitchCase="'label'">Label</span>
+        <button *ngSwitchCase="'search-icon'" class="rounded-btn search-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Search
+        </button>
+        <button *ngSwitchCase="'mic-icon'" class="rounded-btn mic-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          Mic
+        </button>
+        <div *ngSwitchCase="'dark-mode-switch'" class="dark-mode-toggle">
+          <label class="radio-label">
+            <input type="radio" name="theme-{{i}}" value="light" [(ngModel)]="widget.value"> Light
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="theme-{{i}}" value="dark" [(ngModel)]="widget.value"> Dark
+          </label>
+        </div>
+        <div *ngSwitchCase="'sender-chat-bubble'" class="chat-bubble sender-bubble">
+          {{ widget.message }}
+          <div class="chat-time">12:00 PM</div>
+        </div>
+        <div *ngSwitchCase="'receiver-chat-bubble'" class="chat-bubble receiver-bubble">
+          {{ widget.message }}
+          <div class="chat-time">12:01 PM</div>
+        </div>
+        <button *ngSwitchCase="'send-icon'" class="rounded-btn send-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2z"/>
+          </svg>
+          Send
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<!-- Add context menu -->
+<div class="context-menu" *ngIf="contextMenu.show" [style.left.px]="contextMenu.x" [style.top.px]="contextMenu.y">
+  <div class="menu-item" (click)="editWidgetLabel()">
+    <span>Add/Edit Label</span>
+  </div>
+  <div class="menu-item" (click)="deleteWidget()">
+    <span>Delete Widget</span>
+  </div>
+</div>
+<p>UI Builder Works!</p>
