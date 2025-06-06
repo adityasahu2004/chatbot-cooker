@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { HttpClient } from '@angular/common/http'; // Ensure HttpClient is imported
 
 @Component({
   selector: 'app-project-setup',
@@ -9,12 +10,25 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule
   standalone: true,
   imports: [FormsModule] // Add FormsModule here
 })
-export class ProjectSetupComponent {
+export class ProjectSetupComponent implements OnInit {
   userRequirements: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {} // Inject HttpClient
+
+  ngOnInit() {
+    // Any initialization logic can go here
+  }
 
   generateRecipe() {
-    // Use this.userRequirements as needed
+    this.http.post<any>('http://localhost:5000/api/generate-recipe', { requirements: this.userRequirements })
+      .subscribe(
+        (response) => {
+          localStorage.setItem('modelRecipe', JSON.stringify(response));
+          this.router.navigate(['/recipe']);
+        },
+        (error) => {
+          console.error('Error generating recipe:', error);
+        }
+      );
   }
 }
